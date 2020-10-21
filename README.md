@@ -1,1 +1,32 @@
 # gitlab
+
+自己証明書によるローカル環境用CI/CD設定です。Mac(MacOS Mojave 10.14.6)で動作確認しています。
+
+[Docker socket binding](https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#use-docker-socket-binding)を使用しています。
+
+# Requirement
+
+* Docker Engine 19.03.13
+
+# Usage
+
+自己証明書を発行します。以下はホストのローカルIP例として192.169.10.5を指定しています。
+```bash
+openssl req -newkey rsa:4096 -days 365 -nodes -x509 -subj "/C=JP/ST=AICHI/L=AICHI/O=NAN/OU=NAN/CN=192.168.10.5" -extensions v3_ca -config <( cat /System/Library/OpenSSL/openssl.cnf <(printf "[v3_ca]\nsubjectAltName='IP:192.168.10.5'")) -keyout server.key -out server.crt
+```
+
+生成した証明書ファイル、秘密鍵ファイルを、gtlab/config/sslと、gitlab-runner/config/certsに配置します。
+```bash
+cp server.crt gitlab/config/ssl/192.168.10.5.crt
+cp server.crt gitlab-runner/config/certs/192.168.10.5.crt
+cp server.key gitlab/config/ssl/192.168.10.5.key
+cp server.key gitlab-runner/config/certs/192.168.10.5.key
+```
+
+docker用に証明書ファイル、秘密鍵ファイルをそれぞれclient.cert、client.keyとして配置します。
+docker-composeではレジストリ用ポートとして5050を指定しています。
+[クライアント証明書の追加](https://matsuand.github.io/docs.docker.jp.onthefly/docker-for-mac/#add-client-certificates)
+
+# Note
+
+Windows環境ではテストしていません。
