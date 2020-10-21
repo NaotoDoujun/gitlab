@@ -24,8 +24,18 @@ cp server.key gitlab-runner/config/certs/192.168.10.5.key
 ```
 
 docker用に証明書ファイル、秘密鍵ファイルをそれぞれclient.cert、client.keyとして配置します。
-docker-composeではレジストリ用ポートとして5050を指定しています。
+docker-composeではgitリポジトリ用ポートとして8001を、レジストリ用ポートとして5050を指定しています。
 [クライアント証明書の追加](https://matsuand.github.io/docs.docker.jp.onthefly/docker-for-mac/#add-client-certificates)
+
+以下でgitlabを起動し、ログにて完全に起動完了確認後、https://192.168.10.5:8001 のようにホストのIPアドレス指定でアクセスします。
+```bash
+docker-compose up -d gitlab
+```
+
+runner登録トークン確認後、gitlab-runner registerを使い、既存のconfig.tomlを削除、再生成します。
+再生成後以下パラメータとし、runner起動します。
+privileged = true
+volumes = ["/var/run/docker.sock:/var/run/docker.sock", "/certs/client", "/cache"]
 
 # Note
 
