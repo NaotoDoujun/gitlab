@@ -32,7 +32,8 @@ docker-composeではgitリポジトリ用ポートとして8001を、レジス�
 docker-compose up -d gitlab
 ```
 
-runner登録トークン確認後、gitlab-runner registerを使い、既存のconfig.tomlを削除、再生成します。  再生成後以下パラメータとし、runner起動します。
+runner登録トークン確認後、gitlab-runner registerを使い、既存のconfig.tomlを削除、再生成します。  
+再生成後以下パラメータとし、runner起動します。
 ```bash
 privileged = true
 volumes = ["/var/run/docker.sock:/var/run/docker.sock", "/certs/client", "/cache"]
