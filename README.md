@@ -42,4 +42,4 @@ volumes = ["/var/run/docker.sock:/var/run/docker.sock", "/certs/client", "/cache
 
 # Note
 
-Windows環境ではテストしていません。
+Windows環境では動作確認していません。
