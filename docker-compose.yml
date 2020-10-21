@@ -1,0 +1,62 @@
+version: "3"
+services:
+  ansible:
+    build: ansible/.
+    container_name: ansible
+    volumes:
+      - ./ansible/roles:/roles
+  gitlab:
+    image: gitlab/gitlab-ce
+    container_name: gitlab
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'https://192.168.10.5:8001'
+        registry_external_url 'https://192.168.10.5:5050'
+        gitlab_rails['registry_enabled'] = true
+        gitlab_rails['time_zone'] = "Asia/Tokyo"
+        gitlab_rails['gitlab_shell_ssh_port'] = 2222
+        unicorn['worker_timeout'] = 60
+        unicorn['worker_processes'] = 3
+        logging['logrotate_frequency'] = "weekly"
+        logging['logrotate_rotate'] = 52
+        logging['logrotate_compress'] = "compress"
+        logging['logrotate_method'] = "copytruncate"
+        nginx['listen_port'] = 443
+        nginx['redirect_http_to_https'] = true
+        nginx['ssl_certificate'] = "/etc/gitlab/ssl/192.168.10.5.crt"
+        nginx['ssl_certificate_key'] = "/etc/gitlab/ssl/192.168.10.5.key"
+        mattermost['enable'] = false
+        prometheus['enable'] = false
+        alertmanager['enable'] = false
+        node_exporter['enable'] = false
+        redis_exporter['enable'] = false
+        postgres_exporter['enable'] = false
+        gitlab_exporter['enable'] = false
+        grafana['enable'] = false
+    volumes:
+      - ./gitlab/config:/etc/gitlab
+      - ./gitlab/logs:/var/log/gitlab
+      - ./gitlab/data:/var/opt/gitlab
+    logging:
+      options:
+        max-size: "4M"
+        max-file: "14"
+    ports:
+      - "2222:22"
+      - "8001:443"
+      - "5050:5050"
+    restart: "always"
+    privileged: true
+  runner:
+    image: gitlab/gitlab-runner
+    container_name: gitlab-runner
+    links:
+      - gitlab
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./gitlab-runner/config:/etc/gitlab-runner
+    logging:
+      options:
+        max-size: "4M"
+        max-file: "14"
+    restart: "always"
